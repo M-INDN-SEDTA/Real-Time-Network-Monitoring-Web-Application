@@ -62,9 +62,15 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-4. Run:
+4. Start App:
 ``` bash
 python run.py
+```
+
+5. Open in Browser:
+- link
+``` bash
+http://127.0.0.1:5000/
 ```
 
 
