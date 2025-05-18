@@ -39,22 +39,19 @@ Designed for **security monitoring** and **network troubleshooting**, it provide
 
 ## 🎯 How to Run
 
-1. Clone the repo:  
-   ```bash
-   git clone https://github.com/your-username/real-time-network-monitor.git
+# 1. Clone the repo:
+git clone https://github.com/your-username/real-time-network-monitor.git
 
-2. Create and activate a virtual environment:  
-  Windows:  
-      ```bash
-         python -m venv venv
-         .\venv\Scripts\Activate.ps1
-  macOS / Linux:  
-      ```bash
-         python3 -m venv venv
-       source venv/bin/activate
+# 2. Create and activate a virtual environment:
 
-3.Install dependencies:
-       ``` bash
-       pip install -r requirements.txt
+# Windows (PowerShell):
+python -m venv venv
+.\venv\Scripts\Activate.ps1
 
+# macOS / Linux:
+python3 -m venv venv
+source venv/bin/activate
+
+# 3. Install dependencies:
+pip install -r requirements.txt
 
