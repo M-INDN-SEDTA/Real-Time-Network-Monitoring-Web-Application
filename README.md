@@ -46,12 +46,12 @@ git clone https://github.com/M-INDN-SEDTA/Real-Time-Network-Monitoring-Web-Appli
 
 2. Create and activate a virtual environment:
 
-    Windows (PowerShell):
+-  Windows (PowerShell):
 ``` bash
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 ```
-    macOS / Linux:
+-  macOS / Linux:
 ``` bash
 python3 -m venv venv
 source venv/bin/activate
