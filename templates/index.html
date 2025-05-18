@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Network Monitor</title>
+
+    <style>
+      body {
+        background: #111;
+        color: #eee;
+        font-family: monospace;
+      }
+      .interface {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 5px;
+      }
+      .circle {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+      .green {
+        background-color: #0f0;
+      }
+      .gray {
+        background-color: #555;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      th,
+      td {
+        border: 1px solid #444;
+        padding: 5px;
+      }
+      tr.row:hover {
+        background: #222;
+        cursor: pointer;
+      }
+      #packetDetails {
+        background: #222;
+        padding: 10px;
+        margin-top: 10px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        display: none;
+      }
+      button {
+        margin: 5px;
+        padding: 5px 10px;
+        background: #333;
+        color: #eee;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #555;
+      }
+       /* Navbar container */
+    nav {
+      background-color: #212121;
+      padding: 0.75rem 1rem;
+      position: relative;
+    }
+
+    /* Flex container for desktop */
+    .navbar-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Logo styling */
+    .navbar-logo {
+      font-weight: bold;
+      font-size: 1.5rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Nav links container */
+    .navbar-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    /* Link styling */
+    .navbar-links a {
+      color: #eee;
+      text-decoration: none;
+      position: relative;
+      font-size: 1rem;
+      padding: 0.25rem 0;
+      transition: color 0.3s ease;
+      cursor: pointer;
+    }
+
+    /* Hover underline effect */
+    .navbar-links a::after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: 0;
+      left: 0;
+      background-color: #ffc107; /* gold */
+      transition: width 0.3s ease;
+    }
+
+    .navbar-links a:hover,
+    .navbar-links a:focus {
+      color: #ffc107;
+    }
+
+    .navbar-links a:hover::after,
+    .navbar-links a:focus::after {
+      width: 100%;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 576px) {
+      .navbar-container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .navbar-logo {
+        order: 0;
+        margin-bottom: 0.5rem;
+        text-align: center;
+        width: 100%;
+      }
+
+      .navbar-links {
+        flex-direction: row;
+        gap: 1rem;
+        justify-content: center;
+        width: 100%;
+      }
+    }
+    </style>
+  </head>
+  <body>
+
+    <nav>
+    <div class="navbar-container">
+      <div class="navbar-logo">Network Monitor</div>
+      <div class="navbar-links">
+        <a href="/">Home</a>
+        <a href="/infected">SuspiciousPackets</a>
+      </div>
+    </div>
+  </nav>
+
+    <h2>Select Interface to Capture</h2>
+
+    <main>
+      <select id="ifaceSelect">
+        {% for iface in interfaces %}
+        <option value="{{ iface.name }}">
+          {{ iface.name }} {% if iface.active %} (active) {% endif %}
+        </option>
+        {% endfor %}
+      </select>
+      <button id="startBtn">Start Capture</button>
+      <button id="stopBtn" disabled>Stop Capture</button>
+
+      <div id="interfacesStatus" style="margin-top: 15px">
+        {% for iface in interfaces %}
+        <div class="interface" title="{{ iface.name }}">
+          <div class="circle {{ 'green' if iface.active else 'gray' }}"></div>
+          {{ iface.name }}
+        </div>
+        {% endfor %}
+      </div>
+
+      <table id="packetTable" style="display: none">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Src IP</th>
+            <th>Sport</th>
+            <th>Dst IP</th>
+            <th>Dport</th>
+            <th>Protocol</th>
+            <th>Layers</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div id="packetDetails"></div>
+    </main>
+    <script>
+      let eventSource;
+      let packets = [];
+
+      const table = document.getElementById("packetTable");
+      const tbody = table.querySelector("tbody");
+      const detailsDiv = document.getElementById("packetDetails");
+
+      function addPacketRow(pkt, index) {
+        const row = document.createElement("tr");
+        row.classList.add("row");
+        row.setAttribute("data-index", index);
+
+        if (pkt.malicious) row.style.backgroundColor = "#700"; // red for malicious
+
+        row.innerHTML = `
+    <td>${pkt.time}</td>
+    <td>${pkt.src_ip}</td>
+    <td>${pkt.sport || ""}</td>
+    <td>${pkt.dst_ip}</td>
+    <td>${pkt.dport || ""}</td>
+    <td>${pkt.proto}</td>
+    <td>${pkt.layers}</td>
+  `;
+        tbody.prepend(row);
+
+        row.addEventListener("click", () => {
+          fetch(`/packet/${index}`)
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.error) {
+                detailsDiv.style.display = "block";
+                detailsDiv.textContent = data.error;
+                return;
+              }
+              const hexLines = data.hex_payload.match(/.{1,32}/g) || [];
+              detailsDiv.style.display = "block";
+              detailsDiv.textContent = `
+Time: ${data.time}
+Source IP: ${data.src_ip}
+Source Port: ${data.sport}
+Destination IP: ${data.dst_ip}
+Destination Port: ${data.dport}
+Protocol: ${data.proto}
+Layers: ${data.layers}
+Payload Size: ${data.payload_size} bytes
+Entropy: ${data.entropy}
+Malicious: ${data.malicious ? "⚠️ YES" : "No"}
+Confirmed Malicious: Not Yet
+
+Payload (hex):
+${hexLines.join("\n")}
+
+Payload (ascii):
+${data.payload}
+        `;
+            });
+        });
+      }
+
+      document.getElementById("startBtn").onclick = () => {
+        const iface = document.getElementById("ifaceSelect").value;
+        fetch(`/start_capture/${iface}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status.startsWith("Started")) {
+              table.style.display = "";
+              packets = [];
+              tbody.innerHTML = "";
+              detailsDiv.style.display = "none";
+              document.getElementById("startBtn").disabled = true;
+              document.getElementById("stopBtn").disabled = false;
+
+              eventSource = new EventSource("/stream");
+              eventSource.onmessage = (e) => {
+                if (!e.data || e.data === "{}") return;
+                const pkt = JSON.parse(e.data);
+                packets.unshift(pkt);
+                addPacketRow(pkt, packets.length - 1);
+              };
+            } else {
+              alert(data.status);
+            }
+          });
+      };
+
+      document.getElementById("stopBtn").onclick = () => {
+        fetch("/stop_capture")
+          .then((res) => res.json())
+          .then((data) => {
+            alert(data.status);
+            if (eventSource) {
+              eventSource.close();
+              eventSource = null;
+            }
+            document.getElementById("startBtn").disabled = false;
+            document.getElementById("stopBtn").disabled = true;
+          });
+      };
+    </script>
+  </body>
+</html>

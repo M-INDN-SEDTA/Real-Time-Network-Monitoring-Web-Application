@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Infected Packets</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+    <style>
+      /* Navbar container */
+      nav {
+        background-color: #212121;
+        padding: 0.75rem 1rem;
+        position: relative;
+      }
+
+      /* Flex container for desktop */
+      .navbar-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      /* Logo styling */
+      .navbar-logo {
+        font-weight: bold;
+        font-size: 1.5rem;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      /* Nav links container */
+      .navbar-links {
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      /* Link styling */
+      .navbar-links a {
+        color: #eee;
+        text-decoration: none;
+        position: relative;
+        font-size: 1rem;
+        padding: 0.25rem 0;
+        transition: color 0.3s ease;
+        cursor: pointer;
+      }
+
+      /* Hover underline effect */
+      .navbar-links a::after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background-color: #ffc107; /* gold */
+        transition: width 0.3s ease;
+      }
+
+      .navbar-links a:hover,
+      .navbar-links a:focus {
+        color: #ffc107;
+      }
+
+      .navbar-links a:hover::after,
+      .navbar-links a:focus::after {
+        width: 100%;
+      }
+
+      /* Responsive: Mobile */
+      @media (max-width: 576px) {
+        .navbar-container {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .navbar-logo {
+          order: 0;
+          margin-bottom: 0.5rem;
+          text-align: center;
+          width: 100%;
+        }
+
+        .navbar-links {
+          flex-direction: row;
+          gap: 1rem;
+          justify-content: center;
+          width: 100%;
+        }
+      }
+
+      .container {
+        max-width: 100vw !important;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body class="bg-dark text-light">
+    <nav>
+      <div class="navbar-container">
+        <div class="navbar-logo">Network Monitor</div>
+        <div class="navbar-links">
+          <a href="/">Home</a>
+          <a href="/infected">SuspiciousPackets</a>
+        </div>
+      </div>
+    </nav>
+    <div class="container mt-4">
+      <h2>🚨 Infected Packets ({{ infected_count }})</h2>
+
+      <div class="table-responsive">
+        <table class="table table-dark table-hover mt-3" id="infectedTable">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Source</th>
+              <th>Destination</th>
+              <th>Protocol</th>
+              <th>Payload Size</th>
+              <th>Entropy</th>
+              <th>Hashes</th>
+            </tr>
+          </thead>
+          <tbody id="infectedBody"></tbody>
+        </table>
+      </div>
+
+      <div id="details" class="mt-4"></div>
+    </div>
+
+    <script>
+      let packetsData = [];
+
+      fetch("/api/infected_packets")
+        .then((res) => res.json())
+        .then((packets) => {
+          packetsData = packets;
+          const body = document.getElementById("infectedBody");
+          packets.forEach((pkt, i) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${pkt.time}</td>
+                <td>${pkt.src_ip}:${pkt.sport || ""}</td>
+                <td>${pkt.dst_ip}:${pkt.dport || ""}</td>
+                <td>${pkt.proto}</td>
+                <td>${pkt.payload_size}</td>
+                <td>${pkt.entropy}</td>
+                <td><button class="btn btn-sm btn-outline-light" onclick="showHashes(${i})">Show Hashes</button></td>
+            `;
+            body.appendChild(row);
+          });
+        });
+
+      function showHashes(index) {
+        const pkt = packetsData[index];
+        if (!pkt) return;
+        const hashesHTML = `
+        <h5>Hashes for Packet at ${pkt.time}</h5>
+        <ul>
+            <li><strong>MD5:</strong> ${pkt.md5 || "N/A"}</li>
+            <li><strong>SHA-1:</strong> ${pkt.sha1 || "N/A"}</li>
+            <li><strong>SHA-256:</strong> ${pkt.sha256 || "N/A"}</li>
+        </ul>
+        <pre>${JSON.stringify(pkt, null, 2)}</pre>
+    `;
+        document.getElementById("details").innerHTML = hashesHTML;
+        document.getElementById("details").scrollIntoView({ behavior: "smooth" });
+      }
+    </script>
+  </body>
+</html>
