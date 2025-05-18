@@ -41,7 +41,7 @@ Designed for **security monitoring** and **network troubleshooting**, it provide
 
 1. Clone the repo:
 ``` bash
-git clone https://github.com/your-username/real-time-network-monitor.git
+git clone https://github.com/M-INDN-SEDTA/Real-Time-Network-Monitoring-Web-Application.git
 ```
 
 2. Create and activate a virtual environment:
