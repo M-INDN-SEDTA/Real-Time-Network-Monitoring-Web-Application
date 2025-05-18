@@ -45,7 +45,8 @@ git clone https://github.com/your-username/real-time-network-monitor.git
 ```
 
 2. Create and activate a virtual environment:
- Windows (PowerShell):
+
+Windows (PowerShell):
 ``` bash
 python -m venv venv
 .\venv\Scripts\Activate.ps1
