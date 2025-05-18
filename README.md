@@ -62,5 +62,10 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+4. Run:
+``` bash
+python run.py
+```
+
 
 
