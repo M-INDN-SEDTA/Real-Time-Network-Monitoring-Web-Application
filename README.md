@@ -1,14 +1,9 @@
 # Youtube Comments, Description, Related, Playlist Right/Side Panel  
 
-![Status](https://img.shields.io/badge/status-active-success)  
-![Firefox](https://img.shields.io/badge/firefox-supported-orange?logo=firefox) 
-![Chrome](https://img.shields.io/badge/chrome-supported-green?logo=google-chrome) 
-![Edge](https://img.shields.io/badge/edge-supported-blue?logo=microsoft-edge)  
-![License](https://img.shields.io/badge/license-MIT-blue)  
-![MadeWith](https://img.shields.io/badge/made%20with-JavaScript-yellow?logo=javascript)  
+![Status](https://img.shields.io/badge/status-active-success) ![Firefox](https://img.shields.io/badge/firefox-supported-orange?logo=firefox) ![Chrome](https://img.shields.io/badge/chrome-supported-green?logo=google-chrome) ![Edge](https://img.shields.io/badge/edge-supported-blue?logo=microsoft-edge) ![License](https://img.shields.io/badge/license-MIT-blue) ![MadeWith](https://img.shields.io/badge/made%20with-JavaScript-yellow?logo=javascript)
 
 > A lightweight browser extension that adds a **right-hand sidebar with tabs** for YouTube.  
-> Instantly switch between **Comments, Description, Related Videos, and Playlist** without endless scrolling.  
+> Quickly switch between **Comments, Description, Related Videos, and Playlist** — all in one panel.  
 
 <p align="center">
   <img src="assets/demo.gif" alt="Extension Demo" width="720px">
@@ -16,16 +11,16 @@
 
 ---
 
-## Features
-- Tabbed right sidebar → **Comments, Description, Related, Playlist** (auto-detected).  
-- Seamlessly blends with YouTube (light & dark mode).  
-- No page reloads, no external requests, no tracking.  
-- Playlist detection → adds playlist tab only when available.  
-- Planned: Live Chat support for YouTube livestreams.  
+## ✨ Features
+- 📑 **Tabbed Sidebar** → Comments, Description, Related, Playlist (auto-detected).  
+- 🎨 Matches YouTube’s dark & light themes seamlessly.  
+- ⚡ Instant — no page reloads, no external requests, no tracking.  
+- 📺 Playlist-aware → adds Playlist tab only when available.  
+- 🔴 (Upcoming) Live Chat tab for livestreams.  
 
 ---
 
-## Installation
+## 🔧 Installation
 ### For Chromium Browsers (Chrome, Edge, Brave)  
 1. Download or clone this repository.  
 2. Open `chrome://extensions/` → Enable **Developer Mode**.  
@@ -38,7 +33,7 @@
 
 ---
 
-## Project Structure
+## 📂 Project Structure
 ```bash
 yt-sidetabs/
 │
